@@ -1,0 +1,14 @@
+{
+  "name": "awarenessusa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Awareness USA website - Angular frontend + Node/Express backend",
+  "scripts": {
+    "install:all": "npm --prefix client install && npm --prefix server install",
+    "dev:client": "npm --prefix client start",
+    "dev:server": "npm --prefix server run dev",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "deploy:dev": "npm --prefix client run deploy:dev"
+  }
+}

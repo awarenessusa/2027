@@ -1,0 +1,439 @@
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Resources</span>
+    <h1>Academic Careers</h1>
+    <p>
+      Explore 900+ occupations with real pay, education paths, tasks and outlook
+      data — plus universities that offer related programs.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container page-shell">
+
+    <!-- Search bar — mirrors onetonline.org's "Occupation keyword search" -->
+    <div class="search-card">
+      <label class="search-field name" title="e.g. electrician, nurse, software developer…">
+        <span>Occupation keyword search</span>
+        <input type="text" [(ngModel)]="query" (keydown.enter)="search()"
+               placeholder="e.g. electrician, nurse, software developer…">
+      </label>
+      <button class="primary-btn search-btn" type="button" (click)="search()" [disabled]="isLoading || !query.trim()" title="Search">
+        <i class="bi bi-search"></i> {{ isLoading ? 'Searching…' : 'Go' }}
+      </button>
+      @if (query) {
+        <button class="clear-btn" type="button" (click)="query = ''; results = []; searched = false; selected = null" title="Clear">
+          <i class="bi bi-x-circle"></i> Clear
+        </button>
+      }
+    </div>
+
+    <p class="source-note">
+      <i class="bi bi-info-circle"></i> Powered by O*NET OnLine (US Department of Labor) —
+      900+ occupations with pay, education paths, tasks and outlook data.
+    </p>
+
+    <!-- Quick picks before the first search -->
+    @if (!searched && !isLoading) {
+      <div class="quick-picks">
+        <p class="quick-label"><i class="bi bi-stars"></i> Not sure where to start? Try one:</p>
+        <div class="chip-row">
+          @for (pick of quickPicks; track pick) {
+            <button class="chip" type="button" (click)="search(pick)">{{ pick }}</button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Loading / error / empty states -->
+    @if (isLoading) {
+      <div class="state-card">
+        <i class="bi bi-hourglass-split"></i> Searching occupations…
+      </div>
+    }
+
+    @if (loadError && !isLoading) {
+      <div class="state-card error">
+        <i class="bi bi-exclamation-triangle"></i> {{ loadError }}
+      </div>
+    }
+
+    @if (searched && !isLoading && !loadError && !results.length) {
+      <div class="state-card">
+        <i class="bi bi-search"></i> No occupations matched "{{ query }}" — try a different keyword.
+      </div>
+    }
+
+    <!-- Results table -->
+    @if (results.length && !selected && !detailLoading) {
+      <p class="result-count">
+        {{ total }} occupation{{ total === 1 ? '' : 's' }} found for "{{ query }}"@if (titleMatches.length && relatedMatches.length) {
+        — {{ titleMatches.length }} title match{{ titleMatches.length === 1 ? '' : 'es' }}, the rest match on skills or tasks}
+      </p>
+
+      <div class="occ-table">
+        <div class="occ-row head">
+          <span class="col-code">Code</span>
+          <span class="col-title">Occupation</span>
+          <span class="col-go"></span>
+        </div>
+        @for (o of visibleRows; track o.code) {
+          <button class="occ-row" type="button" (click)="openOccupation(o.code)">
+            <span class="col-code">{{ o.code }}</span>
+            <span class="col-title">
+              <span class="occ-name" [class.title-match]="o.titleMatch">{{ o.title }}</span>
+              @if (o.brightOutlook) {
+                <span class="occ-badge bright" title="Expected to grow rapidly or have large numbers of openings">
+                  <i class="bi bi-sun-fill"></i> Bright Outlook
+                </span>
+              }
+            </span>
+            <span class="col-go"><i class="bi bi-chevron-right"></i></span>
+          </button>
+        }
+      </div>
+
+      @if (hasMore) {
+        <div class="load-more">
+          <button class="clear-btn" type="button" (click)="showMore()">
+            <i class="bi bi-plus-circle"></i> Show more ({{ results.length - shown }} remaining)
+          </button>
+        </div>
+      }
+    }
+
+    <!-- Detail loading / error -->
+    @if (detailLoading) {
+      <div class="state-card">
+        <i class="bi bi-hourglass-split"></i> Loading occupation…
+      </div>
+    }
+    @if (detailError && !detailLoading) {
+      <div class="state-card error">
+        <i class="bi bi-exclamation-triangle"></i> {{ detailError }}
+        <button class="clear-btn" type="button" (click)="backToResults()"><i class="bi bi-arrow-left"></i> Back to results</button>
+      </div>
+    }
+
+    <!-- Occupation detail -->
+    @if (selected; as occ) {
+      <div class="detail-head">
+        <button class="clear-btn" type="button" (click)="backToResults()"><i class="bi bi-arrow-left"></i> Results</button>
+        @if (occ.related.length) {
+          <div class="related-wrap">
+            <button class="clear-btn" type="button" (click)="$event.stopPropagation(); relatedOpen = !relatedOpen">
+              <i class="bi bi-diagram-3"></i> Related careers ({{ occ.related.length }})
+              <i class="bi" [class]="relatedOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+            @if (relatedOpen) {
+              <div class="related-popover" (click)="$event.stopPropagation()">
+                @for (r of occ.related; track r.code) {
+                  <button class="related-item" type="button"
+                          (click)="openOccupation(r.code); relatedOpen = false">
+                    <span class="rel-title">{{ r.title }}</span>
+                    <span class="rel-meta">
+                      <span class="rel-code">{{ r.code }}</span>
+                      @if (r.brightOutlook) {
+                        <i class="bi bi-sun-fill bright-dot" title="Bright Outlook"></i>
+                      }
+                    </span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <article class="detail-card hero">
+        <div class="hero-top">
+          <div>
+            <h2 class="occ-title">{{ occ.title }}</h2>
+            <p class="occ-code">{{ occ.code }}@if (occ.updated) { · Updated {{ occ.updated }}}</p>
+          </div>
+          @if (occ.brightOutlook) {
+            <span class="occ-badge bright lg" title="Expected to grow rapidly or have large numbers of openings">
+              <i class="bi bi-sun-fill"></i> Bright Outlook
+            </span>
+          }
+        </div>
+        <p class="occ-desc">{{ occ.description }}</p>
+        @if (occ.alsoCalled.length) {
+          <p class="also-called">
+            <b>Also called:</b> {{ occ.alsoCalled.join(' · ') }}
+          </p>
+        }
+      </article>
+
+      @if (occ.deprecated) {
+        <article class="detail-card deprecated-card">
+          <p class="deprecated-note">
+            <i class="bi bi-info-circle"></i>
+            O*NET no longer uses occupation code <b>{{ occ.code }}</b>. See one of the current occupations instead:
+          </p>
+          <div class="chip-row">
+            @for (r of occ.replacedBy; track r.code) {
+              <button class="chip occ-link" type="button" (click)="openOccupation(r.code)">
+                {{ r.title }} <span class="chip-code">{{ r.code }}</span>
+              </button>
+            }
+          </div>
+        </article>
+      }
+
+      @if (occ.wages.median || occ.wages.employment || occ.wages.growth || occ.wages.openings) {
+        <div class="stat-grid">
+          @if (occ.wages.median) {
+            <div class="stat-card">
+              <span class="stat-label"><i class="bi bi-cash-coin"></i> Median pay</span>
+              <span class="stat-value">{{ occ.wages.median }}</span>
+            </div>
+          }
+          @if (occ.wages.employment) {
+            <div class="stat-card">
+              <span class="stat-label"><i class="bi bi-people"></i> Employment</span>
+              <span class="stat-value">{{ occ.wages.employment }}</span>
+            </div>
+          }
+          @if (occ.wages.growth) {
+            <div class="stat-card">
+              <span class="stat-label"><i class="bi bi-graph-up-arrow"></i> Projected growth</span>
+              <span class="stat-value">{{ occ.wages.growth }}</span>
+            </div>
+          }
+          @if (occ.wages.openings) {
+            <div class="stat-card">
+              <span class="stat-label"><i class="bi bi-door-open"></i> Yearly openings</span>
+              <span class="stat-value">{{ occ.wages.openings }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="detail-columns">
+        <div class="detail-grid">
+          @if (occ.jobZone) {
+            <article class="detail-card">
+              <h3><i class="bi bi-mortarboard"></i> Preparation</h3>
+              <p class="zone-title">{{ occ.jobZone.title }}</p>
+              @if (occ.jobZone.education) {
+                <p class="zone-line"><b>Education:</b> {{ occ.jobZone.education }}</p>
+              }
+              @if (occ.jobZone.jobTraining) {
+                <p class="zone-line"><b>Training:</b> {{ occ.jobZone.jobTraining }}</p>
+              }
+              @if (occ.jobZone.relatedExperience) {
+                <p class="zone-line"><b>Experience:</b> {{ occ.jobZone.relatedExperience }}</p>
+              }
+              @if (occ.jobZone.svp) {
+                <p class="zone-line muted">SVP range: {{ occ.jobZone.svp }}</p>
+              }
+            </article>
+          }
+
+          @if (occ.education.length) {
+            <article class="detail-card">
+              <h3><i class="bi bi-bar-chart"></i> Education new hires need</h3>
+              @for (e of occ.education; track e.label) {
+                <div class="edu-row">
+                  <div class="edu-bar"><div class="edu-fill" [style.width.%]="e.pct"></div></div>
+                  <span class="edu-pct">{{ e.pct }}%</span>
+                  <span class="edu-label">{{ e.label }}</span>
+                </div>
+              }
+            </article>
+          }
+
+          @if (occ.tasks.length) {
+            <article class="detail-card">
+              <h3><i class="bi bi-list-check"></i> What they do</h3>
+              <ul class="task-list">
+                @for (t of occ.tasks; track t) {
+                  <li>{{ t }}</li>
+                }
+              </ul>
+            </article>
+          }
+
+          @if (occ.software.length) {
+            <article class="detail-card">
+              <h3><i class="bi bi-laptop"></i> Technology skills</h3>
+              @for (s of occ.software; track s.category) {
+                <div class="sw-row">
+                  <b>{{ s.category }}</b>
+                  @if (s.hot) {
+                    <span class="sw-hot" title="In-demand technology"><i class="bi bi-fire"></i> hot</span>
+                  }
+                  @if (s.examples) {
+                    <span class="sw-examples">— {{ s.examples }}</span>
+                  }
+                </div>
+              }
+            </article>
+          }
+
+          @if (occ.interests.code || occ.interests.areas.length) {
+            <article class="detail-card">
+              <h3><i class="bi bi-compass"></i> Interests</h3>
+              @if (occ.interests.code) {
+                <p class="zone-line">Interest code: <b>{{ occ.interests.code }}</b></p>
+              }
+              <div class="chip-row">
+                @for (a of occ.interests.areas; track a) {
+                  <span class="chip static">{{ a }}</span>
+                }
+              </div>
+            </article>
+          }
+
+        </div>
+
+        <!-- Career path diagram — right-side panel -->
+        @if (occ.careerPath) {
+          <aside class="path-side">
+            <article class="detail-card path-card">
+              <h3><i class="bi bi-signpost-split"></i> Career path</h3>
+              @if (careerPathSvg) {
+                <button class="mermaid-box" type="button" (click)="pathZoom = true"
+                        title="Click to enlarge">
+                  <span [innerHTML]="careerPathSvg"></span>
+                  <span class="zoom-hint"><i class="bi bi-zoom-in"></i> Click to enlarge</span>
+                </button>
+              }
+              @if (!careerPathSvg) {
+                <div class="path-loading">
+                  <i class="bi bi-diagram-3"></i> Building diagram…
+                </div>
+              }
+
+            </article>
+          </aside>
+        }
+      </div>
+
+      <!-- Universities offering related programs (College Scorecard) -->
+      <article class="detail-card schools-card">
+        <div class="schools-head">
+          <h3><i class="bi bi-bank"></i> Where to study</h3>
+          <label class="school-state" title="State">
+            <span>State</span>
+            <select [ngModel]="stateCodeToName(schoolState)" (ngModelChange)="onSchoolStateChange($event)">
+              @for (s of states; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </label>
+        </div>
+        @if (schoolFamilies.length) {
+          <p class="schools-note">
+            Programs in {{ schoolFamilies.join(', ') }} — ranked by how much of each school's
+            awards are in this field (College Scorecard, US Dept. of Education).
+          </p>
+        }
+
+        @if (schoolsLoading) {
+          <p class="zone-line"><i class="bi bi-hourglass-split"></i> Finding universities…</p>
+        }
+        @if (schoolsError && !schoolsLoading) {
+          <p class="zone-line error-text"><i class="bi bi-exclamation-triangle"></i> {{ schoolsError }}</p>
+        }
+        @if (!schoolsLoading && !schoolsError && !schools.length) {
+          <p class="zone-line">
+            No schools in {{ stateCodeToName(schoolState) }} reported programs in this field — try another state.
+          </p>
+        }
+
+        <div class="school-grid">
+          @for (s of visibleSchools; track s.id) {
+            <div class="school-card">
+              <div class="school-top">
+                <div class="school-name">
+                  <b>{{ s.name }}</b>
+                  @if (s.city) {
+                    <span class="school-loc"><i class="bi bi-geo-alt"></i> {{ s.city }}@if (s.state) {, {{ s.state }}}</span>
+                  }
+                </div>
+                <span class="match-badge" title="Share of this school's awards in the field">{{ s.matchPct }}%</span>
+              </div>
+
+              <div class="school-stats">
+                @if (s.degree) {
+                  <span class="s-badge degree"><i class="bi bi-mortarboard"></i> {{ s.degree }}</span>
+                }
+                @if (s.acceptanceRate != null) {
+                  <span class="s-badge"><i class="bi bi-person-check"></i> {{ pct(s.acceptanceRate) }} accepted</span>
+                }
+                @if (s.tuition != null) {
+                  <span class="s-badge"><i class="bi bi-cash"></i> {{ money(s.tuition) }}/yr in-state</span>
+                }
+                @if (s.gradRate != null) {
+                  <span class="s-badge"><i class="bi bi-award"></i> {{ pct(s.gradRate) }} graduate</span>
+                }
+                @if (s.earnings != null) {
+                  <span class="s-badge"><i class="bi bi-graph-up"></i> {{ money(s.earnings) }} median earnings</span>
+                }
+              </div>
+
+              @if (hasAdmissions(s)) {
+                <div class="adm-grid">
+                  @if (satComposite(s)) {
+                    <div class="adm-item"><span>SAT (mid 50%)</span><b>{{ satComposite(s) }}</b></div>
+                  }
+                  @if (actRange(s)) {
+                    <div class="adm-item"><span>ACT (mid 50%)</span><b>{{ actRange(s) }}</b></div>
+                  }
+                  @if (s.tuitionOutState != null) {
+                    <div class="adm-item"><span>Tuition out-of-state</span><b>{{ money(s.tuitionOutState) }}/yr</b></div>
+                  }
+                  @if (s.students != null) {
+                    <div class="adm-item"><span>Undergrads</span><b>{{ s.students | number }}</b></div>
+                  }
+                </div>
+              }
+
+              @if (s.programs.length) {
+                <div class="program-list">
+                  @for (p of s.programs; track p.title + p.level) {
+                    <span class="program-chip">
+                      {{ p.title }}@if (p.level) {<span class="program-level"> · {{ p.level }}</span>}
+                    </span>
+                  }
+                </div>
+              }
+
+              @if (s.url) {
+                <div class="school-foot">
+                  <button class="visit-btn" type="button" (click)="openSchool(s)">
+                    <i class="bi bi-box-arrow-up-right"></i> Visit site
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (schools.length > visibleSchools.length) {
+          <div class="schools-more">
+            <span class="schools-count">Showing {{ visibleSchools.length }} of {{ schools.length }} universities</span>
+            <button class="more-btn" type="button" (click)="showMoreSchools()">
+              <i class="bi bi-plus-circle"></i> Show more
+            </button>
+          </div>
+        }
+      </article>
+
+      <!-- Career path zoom modal -->
+      @if (pathZoom) {
+        <div class="path-modal" (click)="pathZoom = false" role="dialog" aria-modal="true" aria-label="Career path diagram">
+          <div class="path-modal-body" (click)="$event.stopPropagation()">
+            <button class="path-modal-close" type="button" (click)="pathZoom = false" aria-label="Close">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="mermaid-zoom" [innerHTML]="careerPathSvg"></div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

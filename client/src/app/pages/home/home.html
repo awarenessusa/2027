@@ -1,0 +1,230 @@
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="hero-bg" appParallax [speed]="0.22" aria-hidden="true">
+    @for (img of heroImages; track img; let i = $index) {
+      <div class="hero-slide" [class.active]="i === activeSlide()" [style.background-image]="'url(' + img + ')'"></div>
+    }
+  </div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Welcome to Awareness USA</span>
+      <h1>Empowering students to realize the <em>American dream</em></h1>
+      <p class="lead">
+        We provide free academic tutoring, mentoring, and life skills training to
+        underprivileged students across Tampa Bay — because every child deserves
+        a fair shot at success.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-accent" href="https://learning.awarenessusa.org/login" target="_blank" rel="noopener">Register Now</a>
+        <a class="btn btn-ghost" routerLink="/about-us">Our Story</a>
+      </div>
+    </div>
+    <div class="hero-stats" aria-label="Organization stats">
+      @for (s of stats; track s.lbl; let i = $index) {
+        <div [class]="'hstat s-' + s.tone" appReveal [delay]="300 + i * 120">
+          <span class="hs-ico">{{ s.icon }}</span>
+          <span class="hs-num">{{ s.num }}</span>
+          <span class="hs-lbl">{{ s.lbl }}</span>
+        </div>
+      }
+    </div>
+  </div>
+  <div class="hero-dots" role="tablist" aria-label="Hero images">
+    @for (img of heroImages; track img; let i = $index) {
+      <button type="button" class="dot" [class.on]="i === activeSlide()" (click)="goToSlide(i)" [attr.aria-label]="'Show image ' + (i + 1)"></button>
+    }
+  </div>
+</section>
+
+<!-- ============ Challenge / Mission / Vision ============ -->
+<section class="section">
+  <div class="container">
+    <div class="split">
+      <div appReveal>
+        <span class="eyebrow">The Challenge</span>
+        <h2>Nearly 12 million children in the U.S. live in poverty</h2>
+        <p>
+          Many lack access to the education, guidance, and basic resources they
+          need to succeed. About 1 in every 6 children faces homelessness,
+          foster care, or financial instability in a single-parent household.
+        </p>
+        <p>
+          We believe there is a shared social responsibility to lift these
+          students up — and we focus on creating meaningful impact one child
+          at a time.
+        </p>
+      </div>
+      <div class="mv-cards">
+        <div class="card lift" appReveal [delay]="120">
+          <h3>🎯 Our Mission</h3>
+          <p>Connect underserved students with academic support and life skills to help them succeed in school, career, and life.</p>
+        </div>
+        <div class="card lift" appReveal [delay]="240">
+          <h3>🔭 Our Vision</h3>
+          <p>Empower underprivileged students across Tampa Bay to achieve their full potential through education and opportunity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Parallax: Education ============ -->
+<section class="parallax">
+  <div class="px-bg" appParallax [speed]="0.18" style="background-image: url('assets/img/education.jpg')" role="img" aria-label="Children in a classroom listening to their teacher"></div>
+  <svg class="band-edge edge-top" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#fbf9f5"/></svg>
+  <div class="container" appReveal>
+    <span class="eyebrow">Why It Matters</span>
+    <h2>Education is the most powerful path out of poverty</h2>
+    <p>When a student gets consistent support, everything changes — grades, confidence, and what they believe is possible.</p>
+  </div>
+  <svg class="band-edge edge-bottom" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#ffffff"/></svg>
+</section>
+
+<!-- ============ Programs ============ -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head center" appReveal>
+      <span class="eyebrow">What We Do</span>
+      <h2>Programs built for the whole child</h2>
+      <p class="lead">Academics open doors — but confidence, character, and life skills keep them open.</p>
+    </div>
+    <div class="accordion">
+      @for (p of programs; track p.title; let i = $index) {
+        <article class="acard" appReveal [delay]="i * 120">
+          <img class="acard-img" [src]="p.img" [alt]="p.title" />
+          <div class="acard-shade"></div>
+          <div class="acard-label">
+            <span class="acard-ico" [style.background]="p.gradient">{{ p.icon }}</span>
+            <h3>{{ p.title }}</h3>
+          </div>
+          <div class="acard-body">
+            <span class="acard-tag" [style.color]="p.tone">{{ p.tag }}</span>
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.text }}</p>
+            <a [routerLink]="p.link" class="acard-link" [style.color]="p.tone">Learn more →</a>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============ Parallax: Tutoring ============ -->
+<section class="parallax">
+  <div class="px-bg" appParallax [speed]="0.18" style="background-image: url('assets/img/tutoring.jpg')" role="img" aria-label="A student writing intently in a notebook"></div>
+  <svg class="band-edge edge-top" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#ffffff"/></svg>
+  <div class="container" appReveal>
+    <span class="eyebrow">One-on-One Tutoring</span>
+    <h2>Every child learns differently — so we teach one-on-one</h2>
+    <p>Personal attention. Patient mentors. Real breakthroughs, one session at a time.</p>
+  </div>
+  <svg class="band-edge edge-bottom" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#fbf9f5"/></svg>
+</section>
+
+<!-- ============ Mentors with Heart ============ -->
+<section class="section">
+  <div class="container">
+    <div class="split">
+      <div class="photo-panel" appReveal style="background-image: url('assets/img/mentor.jpg')" role="img" aria-label="Students collaborating together with laptops"></div>
+      <div appReveal [delay]="120">
+        <span class="eyebrow">Mentors with Heart</span>
+        <h2>More than homework help — a relationship that lasts</h2>
+        <p>
+          Did a teacher ever make you feel important? Our tutors and mentors
+          build positive, long-term relationships with students and families who
+          need it most.
+        </p>
+        <ul class="checklist">
+          <li>Dedicated one-on-one homework help and tutoring</li>
+          <li>A safe space where students are heard and valued</li>
+          <li>Guidance through career and college application decisions</li>
+          <li>Monthly mentoring, networking, and community-building events</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Parallax: College ============ -->
+<section class="parallax">
+  <div class="px-bg" appParallax [speed]="0.18" style="background-image: url('assets/img/college.jpg')" role="img" aria-label="Graduates tossing their caps in celebration"></div>
+  <svg class="band-edge edge-top" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#fbf9f5"/></svg>
+  <div class="container" appReveal>
+    <span class="eyebrow">The Goal</span>
+    <h2>From first session to graduation day</h2>
+    <p>We guide students through college applications, career decisions, and the confidence to chase big dreams.</p>
+  </div>
+  <svg class="band-edge edge-bottom" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#ffffff"/></svg>
+</section>
+
+<!-- ============ Events ============ -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head" appReveal>
+      <span class="eyebrow">What's Happening</span>
+      <h2>Events &amp; community outreach</h2>
+    </div>
+    <div class="grid cols-3">
+      @for (e of events; track e.title; let i = $index) {
+        <div class="card lift event-card" appReveal [delay]="i * 120">
+          <span class="pill">{{ e.tag }}</span>
+          <h3>{{ e.title }}</h3>
+          <p>{{ e.text }}</p>
+          <a routerLink="/events" class="card-link">Read more →</a>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============ Parallax: Community Service ============ -->
+<section class="parallax">
+  <div class="px-bg" appParallax [speed]="0.18" style="background-image: url('assets/img/community.jpg')" role="img" aria-label="Volunteers unloading boxes of food for a community drive"></div>
+  <svg class="band-edge edge-top" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#ffffff"/></svg>
+  <div class="container" appReveal>
+    <span class="eyebrow">Community Service</span>
+    <h2>Service builds character — and community</h2>
+    <p>Our students don't just receive help. They learn to give it, through food drives, mentoring, and outreach across Tampa Bay.</p>
+  </div>
+  <svg class="band-edge edge-bottom" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 C360,115 1080,-15 1440,55 L1440,90 L0,90 Z" fill="#fbf9f5"/></svg>
+</section>
+
+<!-- ============ Testimonials ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head center" appReveal>
+      <span class="eyebrow">Testimonials</span>
+      <h2>Voices from our community</h2>
+    </div>
+    <div class="grid cols-2">
+      @for (t of testimonials; track t.name; let i = $index) {
+        <div class="quote-card" appReveal [delay]="(i % 2) * 120">
+          <span class="mark">“</span>
+          <blockquote>{{ t.quote }}</blockquote>
+          <div class="who">
+            <div class="name">{{ t.name }}</div>
+            <div class="role">{{ t.role }}</div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============ Donate band ============ -->
+<section class="section tight">
+  <div class="container">
+    <div class="cta-band warm">
+      <div>
+        <h2>Donate to educate and empower a student's life</h2>
+        <p>90% of funds go directly to programs. Make a donation today.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-accent" routerLink="/donate-now">Donate Now</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-cta-band />

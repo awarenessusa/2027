@@ -1,0 +1,110 @@
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a routerLink="/" class="brand" (click)="closeMenu()" aria-label="Awareness USA home">
+      <img class="logo-img" src="assets/logo.png" alt="Awareness USA" />
+    </a>
+
+    <button class="menu-btn" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" [class.open]="menuOpen()" aria-label="Primary">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()"><svg class="nav-ico" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+
+      <div class="drop">
+        <button type="button" class="drop-btn"><svg class="nav-ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>About <i class="chev"></i></button>
+        <div class="drop-menu">
+          <a routerLink="/about-the-founder" routerLinkActive="active" (click)="closeMenu()">About The Founder</a>
+          <a routerLink="/about-the-team" routerLinkActive="active" (click)="closeMenu()">About The Team</a>
+          <a routerLink="/our-partners" routerLinkActive="active" (click)="closeMenu()">Our Partners</a>
+          <a routerLink="/the-book-joy-of-life" routerLinkActive="active" (click)="closeMenu()">The Book – Joy Of Life</a>
+        </div>
+      </div>
+
+      <div class="drop">
+        <button type="button" class="drop-btn"><svg class="nav-ico" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12.5V17c0 1.66 2.69 3 6 3s6-1.34 6-3v-4.5"/><path d="M22 10v6"/></svg>Programs <i class="chev"></i></button>
+        <div class="drop-menu">
+          <a routerLink="/academics" routerLinkActive="active" (click)="closeMenu()">Peer Tutoring &amp; Academics</a>
+          <a routerLink="/life-skill-training" routerLinkActive="active" (click)="closeMenu()">Life Skill Training</a>
+          <a routerLink="/social-responsibility" routerLinkActive="active" (click)="closeMenu()">Social Responsibility</a>
+          <a routerLink="/learning-guidelines" routerLinkActive="active" (click)="closeMenu()">Learning Guidelines</a>
+          <a routerLink="/teaching-guidelines" routerLinkActive="active" (click)="closeMenu()">Teaching Guidelines</a>
+          <a routerLink="/faqs" routerLinkActive="active" (click)="closeMenu()">FAQs</a>
+        </div>
+      </div>
+
+      <div class="drop">
+        <button type="button" class="drop-btn"><svg class="nav-ico" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources <i class="chev"></i></button>
+        <div class="drop-menu">
+          <a routerLink="/educational-resources" routerLinkActive="active" (click)="closeMenu()">Educational Resources</a>
+          <a routerLink="/family-resources" routerLinkActive="active" (click)="closeMenu()">Family Resources</a>
+          <a routerLink="/academic-careers" routerLinkActive="active" (click)="closeMenu()">Academic Careers</a>
+        </div>
+      </div>
+
+      <div class="drop">
+        <button type="button" class="drop-btn"><svg class="nav-ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Events <i class="chev"></i></button>
+        <div class="drop-menu">
+          <a routerLink="/events" routerLinkActive="active" (click)="closeMenu()">Events</a>
+          <a routerLink="/event-gallery" routerLinkActive="active" (click)="closeMenu()">Event Gallery</a>
+        </div>
+      </div>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()"><svg class="nav-ico" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>Contact</a>
+      <a class="nav-cta" routerLink="/donate-now" (click)="closeMenu()"><svg class="nav-ico" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Donate</a>
+    </nav>
+  </div>
+</header>
+
+<app-digital-clock />
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a routerLink="/" class="brand light" aria-label="Awareness USA home">
+          <img class="logo-img" src="assets/logo.png" alt="Awareness USA" />
+        </a>
+        <p>Awareness USA supports education, life skills, and community development programs for students and families across Tampa Bay.</p>
+      </div>
+
+      <div class="foot-col">
+        <h4>About Us</h4>
+        <a routerLink="/about-us">About Awareness USA</a>
+        <a routerLink="/faqs">Frequently Asked Questions</a>
+        <a routerLink="/about-the-founder">About The Founder</a>
+        <a routerLink="/about-the-team">Awareness USA Team</a>
+        <a routerLink="/the-book-joy-of-life">The Book – Joy Of Life</a>
+        <a routerLink="/our-partners">Our Partners</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>AUSA Programs</h4>
+        <a href="https://learning.awarenessusa.org/login" target="_blank" rel="noopener">Register for the Program</a>
+        <a routerLink="/academics">Academics</a>
+        <a routerLink="/life-skill-training">Life Skill Training</a>
+        <a routerLink="/social-responsibility">Social Responsibility</a>
+        <a routerLink="/learning-guidelines">Learning Guidelines</a>
+        <a routerLink="/teaching-guidelines">Teaching Guidelines</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>Resources</h4>
+        <a routerLink="/educational-resources">Educational Resources</a>
+        <a routerLink="/family-resources">Family Resources</a>
+        <a routerLink="/academic-careers">Academic Careers</a>
+        <a routerLink="/events">Events</a>
+        <a routerLink="/event-gallery">Event Gallery</a>
+        <a routerLink="/contact">Contact</a>
+      </div>
+    </div>
+
+    <div class="foot-bar">
+      <span>© {{ year }} Awareness USA. All Rights Reserved.</span>
+      <span class="tag">A 501(c)(3) nonprofit organization · Tampa Bay, FL</span>
+    </div>
+  </div>
+</footer>

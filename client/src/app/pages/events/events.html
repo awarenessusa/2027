@@ -1,0 +1,252 @@
+<section class="page-hero ph-about">
+  <div class="container">
+    <span class="eyebrow">What's Happening</span>
+    <h1>Events &amp; volunteer opportunities</h1>
+    <p class="lead">Browse real volunteer events near you — pick a shift, sign up in a minute, and make your hours count.</p>
+  </div>
+</section>
+
+<section class="section"><div class="container"><div class="page-shell">
+
+  <div class="view-toolbar">
+    <div class="view-toolbar-left">
+      @if (orgFilter) {
+        <button class="org-filter-chip" type="button" (click)="clearOrgFilter()" title="Clear filter">
+          <i class="bi bi-building"></i> {{ orgFilter }} <i class="bi bi-x-lg"></i>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading) {
+    <p class="detail-empty"><i class="bi bi-hourglass-split"></i> Loading events…</p>
+  }
+  @if (loadError) {
+    <p class="detail-empty"><i class="bi bi-exclamation-triangle"></i> {{ loadError }}</p>
+  }
+
+  <!-- Detail view — list rows -->
+  @if (!loading) {
+    <div class="detail-list">
+      @for (event of displayedEvents; track event.id; let i = $index) {
+        <div class="detail-item" [class.event-closed]="isEventClosed(event)" (click)="toggleEvent(event)">
+          <article class="detail-card">
+            <div class="detail-thumb" [class.detail-thumb-clickable]="event.flyerUrl" (click)="event.flyerUrl && openFlyerPreview(event, $event)" [title]="event.flyerUrl ? 'View full image' : ''">
+              @if (event.flyerUrl && !isPdf(event.flyerUrl)) {
+                <img [src]="event.flyerUrl" [alt]="event.title + ' image'" loading="lazy">
+              }
+              @if (event.flyerUrl && isPdf(event.flyerUrl)) {
+                <i class="bi bi-file-earmark-pdf detail-thumb-pdf"></i>
+              }
+              @if (!event.flyerUrl) {
+                <span class="detail-thumb-fallback" [style.background]="getCardGradient(i)">{{ detailInitial(event) }}</span>
+              }
+            </div>
+
+            <div class="detail-main">
+              <div class="detail-head">
+                <h3 class="detail-title">{{ event.title }}</h3>
+                <p class="detail-org">{{ orgNameOf(event) || event.createdBy?.name || event.createdBy?.email || 'Awareness USA' }}</p>
+              </div>
+
+              @if (event.description) {
+                <p class="detail-desc"><i class="bi bi-stars"></i> {{ plainDesc(event) }}</p>
+              }
+
+              <div class="detail-badges">
+                @if (!isExternalEvent(event) && !isEventFull(event) && !isEventClosed(event)) {
+                  <span class="badge badge-available" [class.badge-low]="totalAvailableSpots(event) <= 3"><i class="bi bi-people-fill"></i> {{ totalAvailableSpots(event) <= 3 ? 'Only ' + totalAvailableSpots(event) + ' slots left!' : totalAvailableSpots(event) + ' slots available' }}</span>
+                }
+                @if (isEventClosed(event)) {
+                  <span class="d-chip d-chip-closed"><i class="bi bi-lock-fill"></i> Closed</span>
+                }
+                @if (event.location) {
+                  <span class="d-chip"><i class="bi bi-geo-alt"></i> {{ event.location }}</span>
+                }
+                <span class="d-chip"><i class="bi bi-calendar3"></i> {{ eventTiming(event) }}</span>
+                @if (!isExternalEvent(event)) {
+                  <span class="d-chip"><i class="bi bi-list-check"></i> {{ event.shifts.length }} shift{{ event.shifts.length === 1 ? '' : 's' }}</span>
+                  <span class="d-chip"><i class="bi bi-people"></i> {{ event.volunteersNeeded }} needed</span>
+                }
+                @if (event.volunteerType === 'adult') {
+                  <span class="d-chip"><i class="bi bi-person-badge"></i> Adults only</span>
+                }
+                @if (event.volunteerType === 'age10' || event.volunteerType === 'age13') {
+                  <span class="d-chip"><i class="bi bi-person-check"></i> {{ event.volunteerType === 'age10' ? 'Ages 10+' : 'Ages 13+' }}</span>
+                }
+                @if (event.volunteerType === 'teen') {
+                  <span class="d-chip"><i class="bi bi-person-arms-up"></i> Teens 16+</span>
+                }
+                @if (event.volunteerType === 'student') {
+                  <span class="d-chip"><i class="bi bi-backpack"></i> Students only</span>
+                }
+                @if (isExternalEvent(event)) {
+                  <span class="d-chip"><i class="bi bi-box-arrow-up-right"></i> External</span>
+                }
+                @if (isEventFull(event) && !isEventClosed(event)) {
+                  <span class="d-chip d-chip-full"><i class="bi bi-hourglass-split"></i> Waitlist open</span>
+                }
+                @if (!isExternalEvent(event) && event.requiresApproval) {
+                  <span class="d-chip d-chip-pending"><i class="bi bi-person-check"></i> Approval required</span>
+                }
+              </div>
+
+              @if (photosFor(event).length) {
+                <div class="event-photos detail-event-photos" (click)="$event.stopPropagation()">
+                  @for (photo of photosFor(event).slice(0, 4); track photo.id; let isLast = $last) {
+                    <span class="event-photo-thumb" [title]="'Photo by ' + (photo.name || photo.email || 'volunteer')" (click)="openPhotoPreview(photo, event, $event)">
+                      <img [src]="photo.url" [alt]="'Photo from ' + event.title" loading="lazy">
+                      @if (isLast && extraPhotoCount(event)) {
+                        <button class="photo-more" type="button" [title]="'View all ' + photosFor(event).length + ' photos'" (click)="openPhotos(event, $event)">+{{ extraPhotoCount(event) }}</button>
+                      }
+                    </span>
+                  }
+                </div>
+              }
+
+              <div class="detail-foot">
+                @if (postedAgo(event.createdAt)) {
+                  <span class="detail-posted">Posted {{ postedAgo(event.createdAt) }}</span>
+                }
+              </div>
+
+              <div class="reaction-bar detail-reaction-bar" (click)="$event.stopPropagation()">
+                <span class="reaction-btn" [title]="'Likes (' + interactionFor(event).like + ')'">
+                  <i class="bi bi-hand-thumbs-up"></i>
+                  <span>{{ interactionFor(event).like }}</span>
+                </span>
+                <span class="reaction-btn" [title]="'Dislikes (' + interactionFor(event).dislike + ')'">
+                  <i class="bi bi-hand-thumbs-down"></i>
+                  <span>{{ interactionFor(event).dislike }}</span>
+                </span>
+                <span class="reaction-btn reaction-excellent" [title]="'Excellent (' + interactionFor(event).excellent + ')'">
+                  <i class="bi bi-star"></i>
+                  <span>{{ interactionFor(event).excellent }}</span>
+                </span>
+                <button class="reaction-btn reaction-photos" type="button" (click)="openPhotos(event, $event)" [title]="'Photos (' + photosFor(event).length + ')'">
+                  <i class="bi bi-images"></i>
+                  <span>{{ photosFor(event).length }}</span>
+                </button>
+                <button class="reaction-btn reaction-comments" type="button" (click)="openComments(event, $event)" [title]="'Comments (' + interactionFor(event).comments + ')'">
+                  <i class="bi bi-chat-dots"></i>
+                  <span>{{ interactionFor(event).comments }}</span>
+                </button>
+              </div>
+            </div>
+
+          </article>
+
+          @if (orgNameOf(event) && !orgFilter) {
+            <a class="detail-org-link" href="javascript:void(0)" (click)="filterByOrg(event, $event)">
+              View all opportunities from this organization
+            </a>
+          }
+        </div>
+      }
+
+      @if (!displayedEvents.length) {
+        <div class="detail-empty">
+          <i class="bi bi-calendar-x"></i> No opportunities to show.
+        </div>
+      }
+    </div>
+  }
+</div></div></section>
+
+<!-- Full flyer preview modal -->
+@if (flyerPreviewUrl) {
+  <div class="flyer-preview-modal-backdrop">
+    <section class="flyer-preview-modal" role="dialog" aria-modal="true" [attr.aria-label]="flyerPreviewTitle" (click)="$event.stopPropagation()">
+      <header class="flyer-preview-modal-header">
+        <h3>{{ flyerPreviewTitle }}</h3>
+        <button type="button" class="flyer-preview-close" aria-label="Close flyer preview" (click)="closeFlyerPreview()" title="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+      <div class="flyer-preview-modal-body">
+        @if (!isPdf(flyerPreviewUrl)) {
+          <img [src]="flyerPreviewUrl" [alt]="flyerPreviewTitle" draggable="false">
+        } @else {
+          <iframe [src]="pdfUrl(flyerPreviewUrl)" [title]="flyerPreviewTitle"></iframe>
+        }
+      </div>
+    </section>
+  </div>
+}
+
+<!-- Comments modal -->
+@if (commentsEvent) {
+  <div class="comments-modal-backdrop">
+    <section class="comments-modal" role="dialog" aria-modal="true" aria-label="Event comments" (click)="$event.stopPropagation()">
+      <header class="comments-modal-header">
+        <div>
+          <h3>Comments</h3>
+          <p>{{ commentsEvent.title }}</p>
+        </div>
+        <button type="button" class="modal-close-btn" aria-label="Close comments" (click)="closeComments()" title="Close comments">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+
+      <div class="comments-list">
+        @if (commentsLoading) {
+          <p class="comments-empty"><i class="bi bi-hourglass-split"></i> Loading comments…</p>
+        }
+        @if (!commentsLoading && !comments.length) {
+          <p class="comments-empty">No comments yet — be the first to share your thoughts.</p>
+        }
+        @for (comment of comments; track comment.id) {
+          <article class="comment-item">
+            <div class="comment-head">
+              <span class="comment-avatar">{{ (comment.name || comment.email || '?')[0] | uppercase }}</span>
+              <div class="comment-meta">
+                <strong>{{ comment.name || comment.email }}</strong>
+                <span>{{ commentDate(comment.createdAt) }}</span>
+              </div>
+            </div>
+            <p class="comment-text">{{ comment.comment }}</p>
+          </article>
+        }
+      </div>
+
+      <div class="comments-form">
+        <div class="comments-inputs">
+          <input type="text" [(ngModel)]="guestName" maxlength="120" placeholder="Your name" class="comments-name-input" title="Your name">
+          <textarea [(ngModel)]="commentDraft" rows="2" maxlength="2000" placeholder="Share your thoughts about this event…" (keydown.enter)="$event.preventDefault(); postComment()" title="Share your thoughts about this event"></textarea>
+        </div>
+        <button class="primary-btn" type="button" (click)="postComment()" [disabled]="commentBusy || !commentDraft.trim() || !guestName.trim()" title="Send">
+          <i class="bi bi-send"></i> {{ commentBusy ? 'Posting…' : 'Post' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+<!-- Photos modal -->
+@if (photosEvent) {
+  <div class="photos-modal-backdrop">
+    <section class="photos-modal" role="dialog" aria-modal="true" aria-label="Event photos" (click)="$event.stopPropagation()">
+      <header class="comments-modal-header">
+        <div>
+          <h3>Photos</h3>
+          <p>{{ photosEvent.title }}</p>
+        </div>
+        <button type="button" class="modal-close-btn" aria-label="Close photos" (click)="closePhotos()" title="Close photos">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+      <div class="photos-grid">
+        @for (photo of photosFor(photosEvent); track photo.id) {
+          <span class="event-photo-thumb" [title]="'Photo by ' + (photo.name || photo.email || 'volunteer')" (click)="openPhotoPreview(photo, photosEvent, $event)">
+            <img [src]="photo.url" [alt]="'Photo from ' + photosEvent.title" loading="lazy">
+          </span>
+        }
+        @if (!photosFor(photosEvent).length) {
+          <p class="comments-empty">No photos yet.</p>
+        }
+      </div>
+    </section>
+  </div>
+}
+
+<app-cta-band />

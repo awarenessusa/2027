@@ -1,0 +1,14 @@
+{
+  "name": "awarenessusa-server",
+  "version": "1.0.0",
+  "description": "Node/Express server for the Awareness USA website",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
